@@ -3,22 +3,26 @@ import { connectToDB } from '@/app/lib/db';
 import UserProfile from '@/app/model/UserProfile';
 import Test from '@/app/model/Link'; // your model
 import { notFound } from 'next/navigation';
+import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 
 export default async function PublicPage({ params }: { params: { urlName: string } }) {
   await connectToDB();
+
+  const {getUser} = getKindeServerSession()
+  const user = await getUser()
 
   const profile = await UserProfile.findOne({ urlName: params.urlName });
   if (!profile) return notFound();
 
   const data = await Test.find({ createdBy: profile.userId });
   console.log(`this is data come from dynamic url ${data}`)
-  const {urlName} = await params
+  const userName = user?.username
 
-  
+
   return (<div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800 text-white px-6 py-10">
     <div className="max-w-4xl mx-auto">
       <h1 className="text-4xl font-extrabold mb-8 text-center text-blue-400">
-        @{urlName}'s Public Page
+        @{userName}'s Public Page
       </h1>
   
       {data.length === 0 ? (

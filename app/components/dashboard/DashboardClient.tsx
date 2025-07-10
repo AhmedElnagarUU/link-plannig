@@ -1,5 +1,6 @@
 
 import { addItem } from "@/app/action/addData";
+import  {deletItem} from '@/app/action/delete'
 import { connectToDB } from "@/app/lib/db";
 import Test from "@/app/model/Link";
 import { LogoutLink } from "@kinde-oss/kinde-auth-nextjs";
@@ -63,12 +64,30 @@ export default async function DashboardPage({ user }: { user: any }) {
             ) : (
               links.map((link: any) => (
                 <div
-                  key={link._id}
-                  className="bg-gray-800 p-3 rounded-lg border border-gray-700 hover:border-blue-500 transition"
-                >
-                  <h4 className="text-white font-medium">{link.title}</h4>
-                  <p className="text-sm text-gray-400">{link.description}</p>
+                key={link._id}
+                className="bg-gray-800 p-3 rounded-lg border border-gray-700 hover:border-blue-500 transition"
+              >
+                <form >
+                  <input hidden  name="id" value={link._id}/>
+                <h4 className="text-white font-medium">{link.title}</h4>
+                <p className="text-sm text-gray-400 mb-2">{link.description}</p>
+                
+                <div className="flex gap-2">
+                  <button
+                    className="px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-1 transition"
+                  >
+                    ✏️ Edit
+                  </button>
+              
+                  <button formAction ={deletItem}
+                    className="px-3 py-1 text-sm bg-red-600 hover:bg-red-700 text-white rounded-lg flex items-center gap-1 transition"
+                  >
+                    ❌ Delete
+                  </button>
                 </div>
+                </form>
+              </div>
+              
               ))
             )}
           </div>

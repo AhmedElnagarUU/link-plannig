@@ -24,13 +24,7 @@ export default function PublicURLPopup({user}:any) {
       </p>
   
       <form action={addURLName} className="space-y-4">
-        <input
-          type="text"
-          name="urlName"
-          placeholder="my-unique-link"
-          className="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          required
-        />
+        
   
         <button
           type="submit"
