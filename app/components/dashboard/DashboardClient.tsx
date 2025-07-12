@@ -1,19 +1,42 @@
-
+"use client"
 import { addItem } from "@/app/action/addData";
 import  {deletItem} from '@/app/action/delete'
-import { connectToDB } from "@/app/lib/db";
-import Test from "@/app/model/Link";
-import { LogoutLink } from "@kinde-oss/kinde-auth-nextjs";
-import { revalidatePath } from "next/cache";
+import { getData } from "@/app/action/getData";
+import EditForm from "@/app/components/dashboard/EditForm"
+
+import { useEffect, useState } from "react";
 
 
-export default async function DashboardPage({ user }: { user: any }) {
-  await connectToDB();
-  const links = await Test.find({ createdBy: user.id });
+export default  function DashboardPage({ user }: { user: any }) {
+
+  
+  
+  const [edit , setEdit] = useState<[] | null>(null)
+  const [links , setLinks] = useState<any[]>([])
+  const [error , setError] = useState<unknown | null>(null)
+  
+
+  useEffect(()=>{
+
+    const fetchdata = async () =>{
+      const links = await getData(user)
+      setLinks(links)
+    }
+    
+    fetchdata()
+  },[])
+  
+  const handleEdit = (link:any)=>{
+    setEdit(link)
+
+    
+    console.log(edit)
+  }
 
  
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-gray-100 p-6 flex items-center justify-center">
+      {edit && (<EditForm data={edit} state={setEdit}/>)}
       <div className="w-full max-w-xl bg-gray-850 border border-gray-700 rounded-2xl shadow-lg p-8 space-y-6">
         <div className="text-center space-y-1">
           <h2 className="text-3xl font-bold text-white">Create New Item</h2>
@@ -22,7 +45,16 @@ export default async function DashboardPage({ user }: { user: any }) {
           </p>
         </div>
 
-        <form action={addItem} className="space-y-5">
+        <form action={async(f)=>{
+          try{
+          await addItem(f)
+          const links = await getData(user)
+          setLinks(links)
+          }catch(err){
+            setError(err)
+          }
+        }
+          } className="space-y-5">
           <div>
             <label className="block mb-1 text-sm font-medium text-gray-300">
               Title
@@ -68,18 +100,28 @@ export default async function DashboardPage({ user }: { user: any }) {
                 className="bg-gray-800 p-3 rounded-lg border border-gray-700 hover:border-blue-500 transition"
               >
                 <form >
-                  <input hidden  name="id" value={link._id}/>
+                  <input hidden  name="id" value={link._id} readOnly/>
                 <h4 className="text-white font-medium">{link.title}</h4>
                 <p className="text-sm text-gray-400 mb-2">{link.description}</p>
                 
                 <div className="flex gap-2">
-                  <button
+                  <button 
+                  type="button"
+                  onClick={()=>handleEdit(link)}
                     className="px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-1 transition"
                   >
                     ✏️ Edit
                   </button>
               
-                  <button formAction ={deletItem}
+                  <button formAction ={async (f)=>{
+                    try{
+                    await deletItem(f)
+                    const links = await getData(user)
+                    setLinks(links)
+                    }catch(err){
+                      setError(err)
+                    }
+                  }}
                     className="px-3 py-1 text-sm bg-red-600 hover:bg-red-700 text-white rounded-lg flex items-center gap-1 transition"
                   >
                     ❌ Delete
